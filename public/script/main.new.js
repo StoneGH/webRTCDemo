@@ -26,7 +26,7 @@ $(document).ready(function () {
 	ME.RTC.RTCIceCandidate = (window.mozRTCIceCandidate || window.RTCIceCandidate);
 
 	ME.RTC.getUserMedia.call(navigator, {
-		//			 audio: true,
+		audio: true,
 		video: true
 	}, function (stream) {
 		ME.DOM.$myView.prop('src', URL.createObjectURL(stream)).on('loadedmetadata', function (event) {
