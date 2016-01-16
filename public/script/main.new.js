@@ -48,6 +48,7 @@ $(document).ready(function () {
 		var PC;
 		//相应请求
 		ME.PC = PC = new ME.RTC.PeerConnection(ME.ICE_SERVER);
+		//一定要先监听，onicecandidate会在setLocalDescription后触发，所以顺序很重要！！！
 		PC.onicecandidate = function (event) {
 			console.log('in the icecanidate');
 			if (event.candidate) {
