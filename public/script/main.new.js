@@ -6,7 +6,10 @@ $(document).ready(function () {
 			$pormpt: $('#prompt')
 		},
 		USE: {
-			localStream: null
+			localStream: null,
+			localServerUrl: 'https://localhost',
+			remoteServerUrl: 'https://webrtctest.coding.io',
+			useServerUrl: null
 		},
 		METHODS: {},
 		RTC: {},
@@ -19,7 +22,13 @@ $(document).ready(function () {
 		OPC: null
 
 	}
-	var socket = io.connect('https://', {
+	if (location.host === 'localhost') {
+		ME.USE.useServerUrl = ME.USE.localServerUrl;
+	} else {
+		ME.USE.useServerUrl = ME.USE.remoteServerUrl;
+	}
+	ME.USE.useServerUrl
+	var socket = io.connect(ME.USE.useServerUrl, {
 		secure: true
 	});
 	ME.RTC.getUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);

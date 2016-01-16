@@ -1,14 +1,18 @@
 var fs = require('fs'),
-	options = {
+	/*options = {
 		pfx: fs.readFileSync('./keys/temp.pfx'),
 		passphrase: 'imtywcn919mmY'
+	},*/
+	options = {
+		key: fs.readFileSync('./keys/temp.key'),
+		cert: fs.readFileSync('./keys/temp.crt')
 	},
 	express = require('express'),
 	app = express(),
 	//	server = require('http').createServer(app),
 	server = require('https').createServer(options, app),
 	io = require('socket.io').listen(server);
-var port = process.env.VCAP_APP_PORT || 3000;
+var port = process.env.VCAP_APP_PORT || 443;
 
 server.listen(port, function () {
 	console.log('服务器运行在localhost: %d', port);
