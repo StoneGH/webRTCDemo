@@ -19,7 +19,9 @@ $(document).ready(function () {
 		OPC: null
 
 	}
-	var socket = io();
+	var socket = io.connect('https://', {
+		secure: true
+	});
 	ME.RTC.getUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
 	ME.RTC.PeerConnection = (window.PeerConnection || window.webkitPeerConnection || window.webkitRTCPeerConnection || window.mozRTCPeerConnection);
 	ME.RTC.RTCSessionDescription = (window.mozRTCSessionDescription || window.RTCSessionDescription);
