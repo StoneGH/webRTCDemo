@@ -21,7 +21,7 @@ $(document).ready(function () {
 	}
 	var socket = io();
 	ME.RTC.getUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
-	window.PeerConnection = (window.PeerConnection || window.webkitPeerConnection || window.webkitRTCPeerConnection || window.mozRTCPeerConnection);
+	ME.RTC.PeerConnection = (window.PeerConnection || window.webkitPeerConnection || window.webkitRTCPeerConnection || window.mozRTCPeerConnection);
 	ME.RTC.RTCSessionDescription = (window.mozRTCSessionDescription || window.RTCSessionDescription);
 	ME.RTC.RTCIceCandidate = (window.mozRTCIceCandidate || window.RTCIceCandidate);
 
@@ -30,7 +30,7 @@ $(document).ready(function () {
 		video: true
 	}, function (stream) {
 		ME.DOM.$myView.prop('src', URL.createObjectURL(stream)).on('loadedmetadata', function (event) {
-			console.log("Label: " + stream.label);
+			console.log("Label: " + stream.id);
 			console.log("AudioTracks", stream.getAudioTracks());
 			console.log("VideoTracks", stream.getVideoTracks());
 		});
@@ -45,31 +45,68 @@ $(document).ready(function () {
 
 	socket.on('userJoin', function (data) {
 		console.log('hava the user join', data);
+		var PC;
 		//相应请求
-		ME.PC = new window.PeerConnection(ME.ICE_SERVER);
-
-		ME.PC.onicecandidate = function (event) {
-			console.log('ok?');
-			var description = JSON.stringify(event.candidate);
-			console.log(description);
-		}
-	});
-	socket.on('answer', function (data) {
-		console.log('in the answer:');
-		ME.OPC = new ME.RTC.PeerConnection(ME.iceServer);
-		ME.OPC.addIceCandidate(new ME.RTC.RTCIceCandidate(data.iceData));
-		ME.OPC.onicecandidate = function (evt) {
-			console.log('ice:', evt);
-			if (evt.candidate) {
-				socket.emit('answerrIce', {
-					iceData: evt.candidate
+		ME.PC = PC = new ME.RTC.PeerConnection(ME.ICE_SERVER);
+		PC.onicecandidate = function (event) {
+			console.log('in the icecanidate');
+			if (event.candidate) {
+				socket.emit('iceSwop', {
+					iceData: event.candidate
 				});
 			}
+		}
+		PC.onaddstream = function (evt) {
+			var stream = evt.stream;
+			ME.DOM.$pormpt.hide('slow');
+			ME.DOM.$otherView.prop('src', URL.createObjectURL(stream));
 		};
+		PC.addStream(ME.USE.localStream);
+		PC.createOffer(function (desc) {
+			PC.setLocalDescription(desc, function () {
+				socket.emit('answerOffer', {
+					sdp: PC.localDescription
+				});
+			});
+		});
+	});
+	socket.on('answerOffer', function (data) {
+		console.log('in the answeOffer:', data);
+		ME.OPC = new ME.RTC.PeerConnection(ME.ICE_SERVER);
+		/*ME.OPC.onicecandidate = function (event) {
+			console.log('in the icecanidate');
+			if (event.candidate) {
+				socket.emit('iceSwop', {
+					iceData: event.candidate
+				});
+			}
+		}*/
+		ME.OPC.onaddstream = function (evt) {
+			var stream = evt.stream;
+			ME.DOM.$pormpt.hide('slow');
+			ME.DOM.$otherView.prop('src', URL.createObjectURL(stream));
+		};
+		ME.OPC.addStream(ME.USE.localStream);
+		ME.OPC.setRemoteDescription(new ME.RTC.RTCSessionDescription(data.sdp), function () {
+			ME.OPC.createAnswer(function (desc) {
+				ME.OPC.setLocalDescription(desc, function () {
+					socket.emit('answerAnswer', {
+						sdp: ME.OPC.localDescription
+					});
+				});
+			})
+		});
 
 	});
-	socket.on('answerIce', function (data) {
+	socket.on('answerAnswer', function (data) {
+		console.log('in the answer:');
+		ME.PC.setRemoteDescription(new ME.RTC.RTCSessionDescription(data.sdp), function () {
+			console.log('流媒体信息交换完成');
+		});
+	});
+	socket.on('iceSwop', function (data) {
 		console.log('in the answer Ice:', data);
-		ME.PC.addIceCandidate(new ME.RTC.RTCIceCandidate(data.iceData));
+		var PC = ME.OPC;
+		PC.addIceCandidate(new ME.RTC.RTCIceCandidate(data.iceData));
 	});
 });
