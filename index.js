@@ -12,7 +12,7 @@ var fs = require('fs'),
 	//	server = require('http').createServer(app),
 	server = require('https').createServer(options, app),
 	io = require('socket.io').listen(server);
-var port = process.env.VCAP_APP_PORT || 443;
+var port = process.env.VCAP_APP_PORT || 3000;
 
 server.listen(port, function () {
 	console.log('服务器运行在localhost: %d', port);
