@@ -1,16 +1,7 @@
 var fs = require('fs'),
-	/*options = {
-		pfx: fs.readFileSync('./keys/temp.pfx'),
-		passphrase: 'imtywcn919mmY'
-	},*/
-	options = {
-		key: fs.readFileSync('./keys/temp.key'),
-		cert: fs.readFileSync('./keys/temp.crt')
-	},
 	express = require('express'),
 	app = express(),
-	//	server = require('http').createServer(app),
-	server = require('https').createServer(options, app),
+	server = require('http').createServer(app),
 	io = require('socket.io').listen(server);
 var port = process.env.VCAP_APP_PORT || 3000;
 

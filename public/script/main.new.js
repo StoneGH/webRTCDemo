@@ -28,9 +28,7 @@ $(document).ready(function () {
 		ME.USE.useServerUrl = ME.USE.remoteServerUrl;
 	}
 	ME.USE.useServerUrl
-	var socket = io.connect(ME.USE.useServerUrl, {
-		secure: true
-	});
+	var socket = io.connect();
 	ME.RTC.getUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
 	ME.RTC.PeerConnection = (window.PeerConnection || window.webkitPeerConnection || window.webkitRTCPeerConnection || window.mozRTCPeerConnection);
 	ME.RTC.RTCSessionDescription = (window.mozRTCSessionDescription || window.RTCSessionDescription);
@@ -85,14 +83,6 @@ $(document).ready(function () {
 	socket.on('answerOffer', function (data) {
 		console.log('in the answeOffer:', data);
 		ME.OPC = new ME.RTC.PeerConnection(ME.ICE_SERVER);
-		/*ME.OPC.onicecandidate = function (event) {
-			console.log('in the icecanidate');
-			if (event.candidate) {
-				socket.emit('iceSwop', {
-					iceData: event.candidate
-				});
-			}
-		}*/
 		ME.OPC.onaddstream = function (evt) {
 			var stream = evt.stream;
 			ME.DOM.$pormpt.hide('slow');
